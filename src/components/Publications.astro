@@ -1,0 +1,188 @@
+---
+/**
+ * Publications.astro
+ * Academic publications section (conditional)
+ */
+
+import { portfolioData } from '../data/portfolio';
+
+const publications = portfolioData.publications || [];
+const firstAuthor = publications.filter(p => p.isFirstAuthor);
+const coAuthor = publications.filter(p => !p.isFirstAuthor);
+
+const totalPapers = publications.length;
+const firstAuthorCount = firstAuthor.length;
+const coAuthorCount = coAuthor.length;
+const citations = publications.reduce((sum, p) => sum + (p.doi ? 1 : 0), 0);
+---
+
+<section id="publications" data-section class="py-20 md:py-32 bg-[var(--bg-secondary)]/50">
+  <div class="container max-w-6xl mx-auto px-4 md:px-8">
+    <!-- Section Title -->
+    <div class="mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4">
+        <span class="gradient-text">Publications</span> Académiques
+      </h2>
+      <p class="text-lg text-[var(--text-secondary)] max-w-2xl">
+        Mes contributions à la recherche et publications académiques.
+      </p>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+      <div class="glass rounded-lg p-4 text-center">
+        <div class="text-2xl md:text-3xl font-bold gradient-text mb-2">{totalPapers}</div>
+        <p class="text-sm text-[var(--text-secondary)]">Articles</p>
+      </div>
+      <div class="glass rounded-lg p-4 text-center">
+        <div class="text-2xl md:text-3xl font-bold gradient-text mb-2">{firstAuthorCount}</div>
+        <p class="text-sm text-[var(--text-secondary)]">Premier Auteur</p>
+      </div>
+      <div class="glass rounded-lg p-4 text-center">
+        <div class="text-2xl md:text-3xl font-bold gradient-text mb-2">{coAuthorCount}</div>
+        <p class="text-sm text-[var(--text-secondary)]">Co-Auteur</p>
+      </div>
+      <div class="glass rounded-lg p-4 text-center">
+        <div class="text-2xl md:text-3xl font-bold gradient-text mb-2">{citations}</div>
+        <p class="text-sm text-[var(--text-secondary)]">Avec DOI</p>
+      </div>
+    </div>
+
+    <!-- First Author Publications -->
+    {firstAuthor.length > 0 && (
+      <div class="mb-12">
+        <div class="flex items-center gap-4 mb-8">
+          <h3 class="text-2xl font-bold">Premier Auteur</h3>
+          <div class="flex-1 h-px bg-gradient-to-r from-[var(--color-primary)] to-transparent"></div>
+          <span class="text-xs font-bold px-3 py-1 rounded-full bg-[var(--color-primary)]/20 text-[var(--color-primary)]">
+            {firstAuthor.length}
+          </span>
+        </div>
+
+        <div class="space-y-6">
+          {firstAuthor.map((pub, index) => (
+            <div
+              data-animate
+              class="group glass rounded-lg p-6 md:p-8 hover:bg-white/15 hover:shadow-lg transition-all duration-300 border-l-4 border-[var(--color-primary)]"
+              style={`animation-delay: ${index * 100}ms;`}
+            >
+              <!-- Year Badge -->
+              <span class="inline-block mb-4 px-3 py-1 text-xs font-mono rounded-full bg-[var(--color-border)]/20 text-[var(--text-secondary)]">
+                {pub.year}
+              </span>
+
+              <!-- Title with Link -->
+              <h4 class="text-lg md:text-xl font-bold mb-2 group-hover:text-[var(--color-primary)] transition-colors duration-300">
+                {pub.url ? (
+                  <a href={pub.url} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:underline">
+                    {pub.title}
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                    </svg>
+                  </a>
+                ) : (
+                  pub.title
+                )}
+              </h4>
+
+              <!-- Journal -->
+              <p class="text-[var(--color-accent)] italic mb-3">{pub.journal}</p>
+
+              <!-- Authors -->
+              <p class="text-sm text-[var(--text-secondary)] mb-3">
+                {pub.authors.map((author, i) => (
+                  <span key={i}>
+                    <span class={author === portfolioData.personal.firstName ? 'font-bold text-[var(--text-primary)]' : ''}>
+                      {author}
+                    </span>
+                    {i < pub.authors.length - 1 && ', '}
+                  </span>
+                ))}
+              </p>
+
+              <!-- DOI -->
+              {pub.doi && (
+                <p class="text-xs font-mono text-[var(--text-muted)]">
+                  DOI: {pub.doi}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Co-Author Publications -->
+    {coAuthor.length > 0 && (
+      <div>
+        <div class="flex items-center gap-4 mb-8">
+          <h3 class="text-2xl font-bold">Co-Auteur</h3>
+          <div class="flex-1 h-px bg-gradient-to-r from-[var(--color-accent)] to-transparent"></div>
+          <span class="text-xs font-bold px-3 py-1 rounded-full bg-[var(--color-accent)]/20 text-[var(--color-accent)]">
+            {coAuthor.length}
+          </span>
+        </div>
+
+        <div class="space-y-6">
+          {coAuthor.map((pub, index) => (
+            <div
+              data-animate
+              class="group glass rounded-lg p-6 md:p-8 hover:bg-white/15 hover:shadow-lg transition-all duration-300 border-l-4 border-[var(--color-accent)]"
+              style={`animation-delay: ${(firstAuthor.length * 100) + (index * 100)}ms;`}
+            >
+              <!-- Year Badge -->
+              <span class="inline-block mb-4 px-3 py-1 text-xs font-mono rounded-full bg-[var(--color-border)]/20 text-[var(--text-secondary)]">
+                {pub.year}
+              </span>
+
+              <!-- Title with Link -->
+              <h4 class="text-lg md:text-xl font-bold mb-2 group-hover:text-[var(--color-accent)] transition-colors duration-300">
+                {pub.url ? (
+                  <a href={pub.url} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:underline">
+                    {pub.title}
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                    </svg>
+                  </a>
+                ) : (
+                  pub.title
+                )}
+              </h4>
+
+              <!-- Journal -->
+              <p class="text-[var(--color-accent)] italic mb-3">{pub.journal}</p>
+
+              <!-- Authors -->
+              <p class="text-sm text-[var(--text-secondary)] mb-3">
+                {pub.authors.map((author, i) => (
+                  <span key={i}>
+                    <span class={author === portfolioData.personal.firstName ? 'font-bold text-[var(--text-primary)]' : ''}>
+                      {author}
+                    </span>
+                    {i < pub.authors.length - 1 && ', '}
+                  </span>
+                ))}
+              </p>
+
+              <!-- DOI -->
+              {pub.doi && (
+                <p class="text-xs font-mono text-[var(--text-muted)]">
+                  DOI: {pub.doi}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    [data-animate] {
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+  }
+</style>

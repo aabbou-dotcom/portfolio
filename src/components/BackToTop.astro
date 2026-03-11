@@ -1,0 +1,35 @@
+---
+/**
+ * BackToTop.astro
+ * Floating back-to-top button
+ */
+---
+
+<button
+  id="back-to-top"
+  title="Retour au sommet"
+  aria-label="Retour au sommet"
+  class="fixed bottom-8 right-8 w-12 h-12 glass rounded-lg flex items-center justify-center opacity-0 -translate-y-4 pointer-events-none transition-all duration-300 hover:bg-white/20 hover:-translate-y-5 z-30"
+>
+  <svg class="w-6 h-6 text-[var(--color-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="18 15 12 9 6 15"></polyline>
+  </svg>
+</button>
+
+<script is:inline>
+  const backToTop = document.getElementById('back-to-top');
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 500) {
+      backToTop.classList.remove('opacity-0', '-translate-y-4', 'pointer-events-none');
+      backToTop.classList.add('opacity-100', 'translate-y-0');
+    } else {
+      backToTop.classList.add('opacity-0', '-translate-y-4', 'pointer-events-none');
+      backToTop.classList.remove('opacity-100', 'translate-y-0');
+    }
+  });
+
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>

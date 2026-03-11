@@ -1,0 +1,83 @@
+---
+/**
+ * Footer.astro
+ * Footer with brand, navigation, and social links
+ */
+
+import { getActiveNavItems, portfolioData } from '../data/portfolio';
+
+const navItems = getActiveNavItems();
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="relative z-10 border-t border-[var(--color-border)] mt-20 py-12 md:py-16">
+  <div class="container max-w-6xl mx-auto px-4 md:px-8">
+    <!-- Main Footer Grid -->
+    <div class="grid md:grid-cols-3 gap-12 mb-12">
+      <!-- Brand Column -->
+      <div>
+        <h3 class="text-lg font-bold mb-2 gradient-text">
+          {portfolioData.personal.firstName} {portfolioData.personal.lastName}
+        </h3>
+        <p class="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs">
+          Développeur passionné par la création de solutions numériques innovantes et performantes.
+        </p>
+      </div>
+
+      <!-- Navigation Column -->
+      <div>
+        <h4 class="font-semibold mb-4 text-[var(--text-primary)]">Navigation</h4>
+        <ul class="space-y-2">
+          {navItems.map((item) => (
+            <li>
+              <a
+                href={`#${item.id}`}
+                class="text-[var(--text-secondary)] hover:text-[var(--color-primary)] transition-colors text-sm"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Connect Column -->
+      <div>
+        <h4 class="font-semibold mb-4 text-[var(--text-primary)]">Me Contacter</h4>
+        <div class="space-y-3">
+          {portfolioData.social.map((social) => (
+            <a
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--color-primary)] transition-all duration-300 group text-sm"
+            >
+              <span>{social.platform}</span>
+              <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="border-t border-[var(--color-border)] pt-8 flex flex-col md:flex-row items-center justify-between text-[var(--text-secondary)] text-xs">
+      <p>© {currentYear} {portfolioData.personal.firstName} {portfolioData.personal.lastName}. Tous les droits réservés.</p>
+      <p class="mt-4 md:mt-0">
+        Construit avec <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="text-[var(--color-primary)] hover:underline">Astro</a> • Déployé sur <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" class="text-[var(--color-primary)] hover:underline">Vercel</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  footer {
+    background: linear-gradient(180deg, rgba(20, 27, 47, 0) 0%, rgba(20, 27, 47, 0.5) 100%);
+  }
+
+  html[data-theme="light"] footer {
+    background: linear-gradient(180deg, rgba(241, 245, 249, 0) 0%, rgba(241, 245, 249, 0.5) 100%);
+  }
+</style>

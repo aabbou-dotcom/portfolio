@@ -1,0 +1,327 @@
+---
+/**
+ * AiAssistant.astro
+ * Floating AI chatbot with knowledge base built from portfolio data
+ */
+
+import { portfolioData, getActiveNavItems } from '../data/portfolio';
+
+const navItems = getActiveNavItems();
+const hasExperience = portfolioData.experience && portfolioData.experience.length > 0;
+const hasPublications = portfolioData.publications && portfolioData.publications.length > 0;
+const hasCertifications = portfolioData.certifications && portfolioData.certifications.length > 0;
+---
+
+<div id="ai-assistant" class="fixed bottom-8 left-8 z-40">
+  <!-- Toggle Button -->
+  <button
+    id="ai-toggle"
+    aria-label="Ouvrir l'assistant IA"
+    class="w-14 h-14 rounded-full glass flex items-center justify-center hover:bg-white/20 transition-all duration-300 relative group"
+  >
+    <svg class="w-7 h-7 text-[var(--color-primary)]" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+    </svg>
+    <!-- Pulsing Ring -->
+    <div class="absolute inset-0 rounded-full border-2 border-[var(--color-primary)]/50 animate-pulse"></div>
+  </button>
+
+  <!-- Chat Panel -->
+  <div
+    id="ai-panel"
+    class="hidden absolute bottom-20 left-0 w-80 sm:w-96 h-96 glass rounded-xl flex flex-col shadow-2xl animate-scale-up origin-bottom-left"
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+          </svg>
+        </div>
+        <div class="text-left">
+          <h3 class="font-bold text-sm">Portfolio AI</h3>
+          <p class="text-xs text-[var(--color-success)] flex items-center gap-1">
+            <span class="w-2 h-2 bg-[var(--color-success)] rounded-full"></span>
+            En ligne
+          </p>
+        </div>
+      </div>
+      <button
+        id="ai-close"
+        aria-label="Fermer le chat"
+        class="p-1 hover:bg-white/10 rounded transition-colors"
+      >
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Messages Area -->
+    <div id="ai-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
+      <!-- Initial greeting will be added by JS -->
+    </div>
+
+    <!-- Quick Actions -->
+    <div id="ai-quick-actions" class="px-4 py-3 border-t border-[var(--color-border)] flex flex-wrap gap-2 overflow-y-auto max-h-24">
+      <!-- Quick action chips will be added by JS -->
+    </div>
+
+    <!-- Input Area -->
+    <div class="p-4 border-t border-[var(--color-border)] flex gap-2">
+      <input
+        id="ai-input"
+        type="text"
+        placeholder="Posez une question..."
+        class="flex-1 px-3 py-2 rounded-lg bg-[var(--bg-secondary)] border border-[var(--color-border)] text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+      />
+      <button
+        id="ai-send"
+        aria-label="Envoyer"
+        class="px-3 py-2 rounded-lg bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white hover:shadow-lg transition-all duration-300"
+      >
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ 
+  firstName: portfolioData.personal.firstName,
+  lastName: portfolioData.personal.lastName,
+  email: portfolioData.personal.email,
+  hasExperience: !!hasExperience,
+  hasPublications: !!hasPublications,
+  hasCertifications: !!hasCertifications,
+  navItems: navItems
+}}>
+  // Knowledge Base
+  const knowledgeBase = {
+    personal: {
+      name: `${firstName} ${lastName}`,
+      email: email,
+      title: 'Étudiant en Informatique',
+      bio: 'Développeur passionné par les technologies modernes et la création de solutions numériques innovantes.'
+    },
+    skills: {
+      technical: ['React', 'Vue.js', 'Astro', 'Node.js', 'TypeScript', 'Tailwind CSS', 'PostgreSQL', 'MongoDB'],
+      soft: ['Communication', 'Résolution de problèmes', 'Travail d\'équipe', 'Leadership']
+    },
+    hasExperience: hasExperience,
+    hasPublications: hasPublications,
+    hasCertifications: hasCertifications,
+    sections: navItems.map(item => item.id)
+  };
+
+  // AI Intent Matching
+  const intentPatterns = {
+    greeting: /^(bonjour|salut|hello|hi|coucou|ça va)/i,
+    about: /^(qui|profile|parle|raconte|présent)/i,
+    skills: /(compétence|skill|technolog|langage|framework)/i,
+    projects: /(projet|portfolio|work|fait)/i,
+    education: /(étud|formation|école|diplôm|éducation)/i,
+    experience: /(expérience|emploi|stage|travail|job)/i,
+    contact: /(contact|email|téléphone|localisation|social)/i,
+    publications: /(publication|article|paper|recherche)/i,
+    certifications: /(certificat|certification|cours|formation|udemy|coursera)/i,
+    help: /(aide|help|quoi|comment|menu)/i,
+    thanks: /(merci|thank|gratitude)/i,
+  };
+
+  function generateResponse(userInput) {
+    const lower = userInput.toLowerCase();
+    let response = '';
+
+    // Check patterns
+    if (intentPatterns.greeting.test(lower)) {
+      response = `Bonjour! Je suis l'assistant IA pour le portfolio de ${knowledgeBase.personal.name}. Comment puis-je vous aider?`;
+    } else if (intentPatterns.about.test(lower)) {
+      response = `${knowledgeBase.personal.name} est ${knowledgeBase.personal.bio} Il possède une forte expertise en développement web et est constamment à la recherche de nouveaux défis technologiques.`;
+    } else if (intentPatterns.skills.test(lower)) {
+      response = `${knowledgeBase.personal.name} maîtrise plusieurs technologiques: ${knowledgeBase.skills.technical.slice(0, 5).join(', ')} et bien d'autres! Il possède également d'excellentes compétences transversales en ${knowledgeBase.skills.soft.join(', ')}.`;
+    } else if (intentPatterns.projects.test(lower)) {
+      response = `${knowledgeBase.personal.name} a réalisé plusieurs projets intéressants en développement web, applications mobiles et outils innovants. Consultez la section "Projets" pour voir ses réalisations!`;
+    } else if (intentPatterns.education.test(lower)) {
+      response = `${knowledgeBase.personal.name} poursuit actuellement ses études en Informatique à ESISA. Vous pouvez voir son parcours détaillé dans la section "Éducation".`;
+    } else if (knowledgeBase.hasExperience && intentPatterns.experience.test(lower)) {
+      response = `${knowledgeBase.personal.name} a acquis une expérience pratique à travers plusieurs stages et projets professionnels. Retrouvez les détails dans la section "Expérience".`;
+    } else if (knowledgeBase.hasCertifications && intentPatterns.certifications.test(lower)) {
+      response = `${knowledgeBase.personal.name} a suivi plusieurs formations en ligne sur Udemy, Coursera et autres plateformes pour approfondir ses compétences. Consultez la section "Certifications"!`;
+    } else if (knowledgeBase.hasPublications && intentPatterns.publications.test(lower)) {
+      response = `${knowledgeBase.personal.name} a contribué à des publications académiques. Retrouvez-les dans la section "Publications".`;
+    } else if (intentPatterns.contact.test(lower)) {
+      response = `Vous pouvez contacter ${knowledgeBase.personal.name} via:\n**Email:** ${knowledgeBase.personal.email}\nOu utilisez le formulaire de contact dans la section "Contact"!`;
+    } else if (intentPatterns.help.test(lower)) {
+      const sections = knowledgeBase.sections.filter(s => s !== 'contact').join(', ');
+      response = `Je peux vous aider avec:\n- Informations sur ${knowledgeBase.personal.name}\n- Ses compétences et projets\n- Comment le contacter\n\nVous pouvez aussi explorer: ${sections}`;
+    } else if (intentPatterns.thanks.test(lower)) {
+      response = `De rien! N'hésitez pas si vous avez d'autres questions! 😊`;
+    } else {
+      response = `Je ne suis pas sûr de bien comprendre votre question. Pouvez-vous me donner plus de détails? Je peux parler de ${knowledgeBase.personal.name}, ses compétences, projets, éducation ou comment le contacter.`;
+    }
+
+    return response;
+  }
+
+  function addMessage(text, isBot = true) {
+    const messagesDiv = document.getElementById('ai-messages');
+    const messageEl = document.createElement('div');
+    messageEl.className = `flex ${isBot ? 'justify-start' : 'justify-end'}`;
+    
+    const bubble = document.createElement('div');
+    bubble.className = `max-w-xs px-4 py-2 rounded-lg ${
+      isBot 
+        ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-tl-none'
+        : 'bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white rounded-tr-none'
+    }`;
+    
+    // Simple markdown conversion
+    let html = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
+    
+    // Convert links like [text](url) to clickable links
+    html = html.replace(/\[(.*?)\]\((#.*?)\)/g, '<a href="$2" class="underline hover:opacity-80">$1</a>');
+    
+    bubble.innerHTML = `<div class="text-sm">${html}</div>`;
+    messageEl.appendChild(bubble);
+    messagesDiv.appendChild(messageEl);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function addTypingIndicator() {
+    const messagesDiv = document.getElementById('ai-messages');
+    const div = document.createElement('div');
+    div.id = 'typing-indicator';
+    div.className = 'flex justify-start';
+    div.innerHTML = `
+      <div class="bg-[var(--bg-secondary)] rounded-lg rounded-tl-none px-4 py-2 flex gap-1">
+        <span class="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce"></span>
+        <span class="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce" style="animation-delay: 0.1s;"></span>
+        <span class="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce" style="animation-delay: 0.2s;"></span>
+      </div>
+    `;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const indicator = document.getElementById('typing-indicator');
+    if (indicator) indicator.remove();
+  }
+
+  function setupQuickActions() {
+    const container = document.getElementById('ai-quick-actions');
+    const actions = [
+      `Qui est ${knowledgeBase.personal.name}?`,
+      'Compétences',
+      'Projets',
+      'Éducation'
+    ];
+    
+    if (knowledgeBase.hasExperience) actions.push('Expérience');
+    if (knowledgeBase.hasCertifications) actions.push('Certifications');
+    actions.push('Contact');
+
+    actions.forEach(action => {
+      const chip = document.createElement('button');
+      chip.className = 'text-xs px-3 py-1 rounded-full glass text-[var(--text-secondary)] hover:text-[var(--color-primary)] hover:bg-white/20 transition-all duration-300 whitespace-nowrap';
+      chip.textContent = action;
+      chip.onclick = () => {
+        const input = document.getElementById('ai-input');
+        input.value = action;
+        sendMessage();
+      };
+      container.appendChild(chip);
+    });
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('ai-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage(text, false);
+    input.value = '';
+    
+    // Clear quick actions after first interaction
+    const quickActions = document.getElementById('ai-quick-actions');
+    if (quickActions.children.length > 0) {
+      quickActions.innerHTML = '';
+    }
+
+    // Simulate typing delay
+    addTypingIndicator();
+    setTimeout(() => {
+      removeTypingIndicator();
+      const response = generateResponse(text);
+      addMessage(response, true);
+    }, 800);
+  }
+
+  // Setup
+  const toggle = document.getElementById('ai-toggle');
+  const panel = document.getElementById('ai-panel');
+  const closeBtn = document.getElementById('ai-close');
+  const sendBtn = document.getElementById('ai-send');
+  const input = document.getElementById('ai-input');
+
+  toggle.addEventListener('click', () => {
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) {
+      // Initial greeting
+      if (document.getElementById('ai-messages').children.length === 0) {
+        addMessage(`Bonjour! 👋 Je suis l'assistant IA pour le portfolio de ${knowledgeBase.personal.name}. Comment puis-je vous aider?`);
+        setupQuickActions();
+      }
+      input.focus();
+    }
+  });
+
+  closeBtn.addEventListener('click', () => {
+    panel.classList.add('hidden');
+  });
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !panel.classList.contains('hidden')) {
+      panel.classList.add('hidden');
+    }
+  });
+
+  // Handle section navigation from chat
+  document.addEventListener('click', (e) => {
+    if (e.target.getAttribute('href')?.startsWith('#')) {
+      const href = e.target.getAttribute('href');
+      if (href !== '#') {
+        panel.classList.add('hidden');
+      }
+    }
+  });
+</script>
+
+<style>
+  @keyframes scaleUp {
+    from {
+      opacity: 0;
+      transform: scale(0.9) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .animate-scale-up {
+    animation: scaleUp 0.3s ease-out;
+  }
+</style>

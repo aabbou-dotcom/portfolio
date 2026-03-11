@@ -1,0 +1,128 @@
+---
+/**
+ * Hero.astro
+ * Full-screen hero section with animated gradient text, profile image, stats, and CTA buttons
+ */
+
+import { portfolioData } from '../data/portfolio';
+
+const { firstName, lastName, title, subtitle, email } = portfolioData.personal;
+const stats = portfolioData.stats || [];
+---
+
+<section id="hero" data-section class="min-h-screen flex items-center justify-center relative overflow-hidden py-20 md:py-0">
+  <div class="container max-w-6xl mx-auto px-4 md:px-8">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <!-- Left: Text Content -->
+      <div class="space-y-8 z-10">
+        <!-- Animated Name -->
+        <div>
+          <h1 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
+            <span class="block gradient-text animate-fade-in-up">{firstName}</span>
+            <span class="block text-[var(--text-primary)] animate-fade-in-up" style="animation-delay: 0.1s;">{lastName}</span>
+          </h1>
+          <p class="text-lg md:text-xl text-[var(--color-primary)] font-semibold mb-2 animate-fade-in-up" style="animation-delay: 0.2s;">
+            {title}
+          </p>
+          <p class="text-base md:text-lg text-[var(--text-secondary)] animate-fade-in-up" style="animation-delay: 0.3s;">
+            {subtitle}
+          </p>
+        </div>
+
+        <!-- Availability Badge -->
+        <div class="flex items-center gap-3 animate-fade-in-up" style="animation-delay: 0.4s;">
+          <div class="w-3 h-3 bg-[var(--color-success)] rounded-full animate-pulse"></div>
+          <span class="text-sm font-medium text-[var(--text-secondary)]">
+            Disponible pour des stages & opportunités
+          </span>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-wrap gap-4 pt-4 animate-fade-in-up" style="animation-delay: 0.5s;">
+          <a
+            href="#projects"
+            class="px-6 py-3 rounded-lg bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white font-medium hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+          >
+            Voir mes Projets
+          </a>
+          <button
+            id="download-cv-btn"
+            class="px-6 py-3 rounded-lg glass font-medium text-[var(--text-primary)] hover:bg-white/20 hover:-translate-y-1 transition-all duration-300"
+          >
+            Télécharger mon CV
+          </button>
+          <a
+            href="#contact"
+            class="px-6 py-3 rounded-lg glass font-medium text-[var(--text-primary)] hover:bg-white/20 hover:-translate-y-1 transition-all duration-300"
+          >
+            Me Contacter
+          </a>
+        </div>
+
+        <!-- Social Pills -->
+        <div class="flex flex-wrap gap-3 pt-6 animate-fade-in-up" style="animation-delay: 0.6s;">
+          {portfolioData.social.map((social) => (
+            <a
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={social.platform}
+              class="glass px-4 py-2 rounded-full text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--color-primary)] hover:bg-white/20 transition-all duration-300 flex items-center gap-2"
+            >
+              <span>{social.platform}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Right: Profile Image & Stats -->
+      <div class="space-y-8">
+        <!-- Profile Image -->
+        <div class="flex justify-center md:justify-end animate-fade-in-up" style="animation-delay: 0.3s;">
+          <div class="relative w-64 h-64 md:w-80 md:h-80">
+            <!-- Gradient Ring Animation -->
+            <div class="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] p-1 animate-hue-rotate">
+              <div class="w-full h-full rounded-full bg-[var(--bg-primary)] flex items-center justify-center overflow-hidden group">
+                <div class="w-full h-full flex items-center justify-center text-6xl font-bold gradient-text group-hover:scale-105 transition-transform duration-500">
+                  AA
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 gap-4 animate-fade-in-up" style="animation-delay: 0.7s;">
+          {stats.map((stat) => (
+            <div class="glass rounded-lg p-4 text-center">
+              <div class="text-2xl md:text-3xl font-bold gradient-text mb-2">
+                {typeof stat.value === 'number' ? `${stat.value}+` : stat.value}
+              </div>
+              <p class="text-sm text-[var(--text-secondary)]">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center animate-bounce">
+      <svg class="w-6 h-6 mx-auto text-[var(--text-secondary)] animate-float" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  document.getElementById('download-cv-btn')?.addEventListener('click', () => {
+    const event = new CustomEvent('openResumeExport');
+    document.dispatchEvent(event);
+  });
+</script>
+
+<style>
+  #hero {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  }
+</style>

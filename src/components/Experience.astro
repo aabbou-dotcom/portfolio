@@ -1,0 +1,98 @@
+---
+/**
+ * Experience.astro
+ * Work experience timeline section (conditional)
+ */
+
+import { portfolioData } from '../data/portfolio';
+
+const experience = portfolioData.experience || [];
+---
+
+<section id="experience" data-section class="py-20 md:py-32 bg-[var(--bg-secondary)]/50">
+  <div class="container max-w-4xl mx-auto px-4 md:px-8">
+    <!-- Section Title -->
+    <div class="mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4">
+        Expérience <span class="gradient-text">Professionnelle</span>
+      </h2>
+      <p class="text-lg text-[var(--text-secondary)] max-w-2xl">
+        Mon parcours professionnel et mes expériences de travail.
+      </p>
+    </div>
+
+    <!-- Experience Cards -->
+    <div class="space-y-6">
+      {experience.map((exp, index) => (
+        <div
+          data-animate
+          class="group relative glass rounded-lg p-6 md:p-8 hover:bg-white/15 hover:shadow-lg hover:-translate-x-1 transition-all duration-300 overflow-hidden"
+          style={`animation-delay: ${index * 100}ms;`}
+        >
+          <!-- Left Accent Bar -->
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[var(--color-primary)] to-[var(--color-accent)]"></div>
+
+          <!-- Top Gradient (appears on hover) -->
+          <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+          <!-- Badges -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="text-xs font-mono px-3 py-1 rounded-full bg-[var(--color-border)]/20 text-[var(--text-secondary)]">
+              {exp.startDate} {exp.endDate ? `- ${exp.endDate}` : '- Présent'}
+            </span>
+            {exp.isCurrent && (
+              <span class="text-xs px-3 py-1 rounded-full bg-[var(--color-success)]/20 text-[var(--color-success)] font-semibold">
+                Position Actuelle
+              </span>
+            )}
+          </div>
+
+          <!-- Role & Company -->
+          <h3 class="text-xl md:text-2xl font-bold mb-1">{exp.role}</h3>
+          <div class="flex items-center gap-2 mb-4">
+            {exp.companyUrl ? (
+              <a
+                href={exp.companyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-[var(--color-primary)] font-semibold hover:underline flex items-center gap-2"
+              >
+                {exp.company}
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                </svg>
+              </a>
+            ) : (
+              <span class="text-[var(--color-primary)] font-semibold">{exp.company}</span>
+            )}
+          </div>
+
+          <!-- Description -->
+          <p class="text-[var(--text-secondary)] mb-4 leading-relaxed">
+            {exp.description}
+          </p>
+
+          <!-- Skills -->
+          {exp.skills && exp.skills.length > 0 && (
+            <div class="flex flex-wrap gap-2">
+              {exp.skills.map((skill) => (
+                <span class="text-xs px-3 py-1 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    [data-animate] {
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+  }
+</style>

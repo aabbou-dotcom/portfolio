@@ -1,0 +1,103 @@
+---
+/**
+ * Education.astro
+ * Timeline of educational background
+ */
+
+import { portfolioData } from '../data/portfolio';
+
+const education = portfolioData.education;
+---
+
+<section id="education" data-section class="py-20 md:py-32">
+  <div class="container max-w-4xl mx-auto px-4 md:px-8">
+    <!-- Section Title -->
+    <div class="mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4">
+        Formation <span class="gradient-text">Académique</span>
+      </h2>
+      <p class="text-lg text-[var(--text-secondary)] max-w-2xl">
+        Mon parcours éducatif et mes études.
+      </p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="space-y-8">
+      {education.map((edu, index) => (
+        <div
+          data-animate
+          class="relative pl-12 md:pl-20"
+          style={`animation-delay: ${index * 100}ms;`}
+        >
+          <!-- Timeline Line (hidden on mobile) -->
+          {index !== education.length - 1 && (
+            <div class="hidden md:block absolute left-5 top-20 w-0.5 h-20 bg-gradient-to-b from-[var(--color-primary)] to-[var(--color-accent)]"></div>
+          )}
+
+          <!-- Timeline Point -->
+          <div class="absolute -left-2 md:left-0 top-2 w-12 h-12 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] flex items-center justify-center animate-pulse group">
+            <div class="w-8 h-8 rounded-full bg-[var(--bg-primary)] flex items-center justify-center">
+              <svg class="w-4 h-4 text-[var(--color-primary)]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Content Card -->
+          <div class="glass rounded-lg p-6 md:p-8 hover:bg-white/15 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            <!-- Latest Badge -->
+            {index === 0 && (
+              <div class="inline-block mb-4 px-3 py-1 text-xs font-bold rounded-full bg-[var(--color-primary)]/20 text-[var(--color-primary)]">
+                Actuellement
+              </div>
+            )}
+
+            <!-- Period Badge -->
+            <div class="inline-block mb-4 ml-2 md:ml-0 px-3 py-1 text-xs font-mono rounded-full bg-[var(--color-border)]/20 text-[var(--text-secondary)]">
+              {edu.startYear} {edu.endYear ? `- ${edu.endYear}` : '- Présent'}
+            </div>
+
+            <!-- Degree & Field -->
+            <h3 class="text-xl md:text-2xl font-bold mb-1">{edu.degree}</h3>
+            <p class="text-[var(--color-primary)] font-semibold mb-4">{edu.field}</p>
+
+            <!-- Institution Link -->
+            <div class="flex items-center gap-2 mb-4">
+              {edu.institutionUrl ? (
+                <a
+                  href={edu.institutionUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-[var(--text-secondary)] hover:text-[var(--color-primary)] transition-colors flex items-center gap-2"
+                >
+                  {edu.institution}
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                  </svg>
+                </a>
+              ) : (
+                <span class="text-[var(--text-secondary)]">{edu.institution}</span>
+              )}
+            </div>
+
+            <!-- Description -->
+            {edu.description && (
+              <p class="text-[var(--text-secondary)] leading-relaxed">
+                {edu.description}
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    [data-animate] {
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+  }
+</style>

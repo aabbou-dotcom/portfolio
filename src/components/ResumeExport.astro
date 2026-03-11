@@ -1,0 +1,483 @@
+---
+/**
+ * ResumeExport.astro
+ * Modal dialog for exporting resume as PDF or DOCX
+ */
+
+import { portfolioData } from '../data/portfolio';
+
+const { firstName, lastName } = portfolioData.personal;
+---
+
+<div id="resume-export-modal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div id="resume-modal-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+  <!-- Modal Content -->
+  <div class="relative glass rounded-xl max-w-2xl w-full max-h-screen overflow-y-auto animate-slide-up">
+    <!-- Close Button -->
+    <button
+      id="resume-close"
+      aria-label="Close modal"
+      class="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-lg transition-colors"
+    >
+      <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <!-- Content -->
+    <div class="p-8">
+      <!-- Header -->
+      <h2 class="text-3xl font-bold mb-2">Exporter mon CV</h2>
+      <p class="text-[var(--text-secondary)] mb-8">
+        Choisissez le format pour télécharger votre CV professionnel optimisé pour les systèmes ATS.
+      </p>
+
+      <!-- Export Options -->
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <!-- PDF Option -->
+        <button
+          id="export-pdf-btn"
+          class="group relative glass rounded-lg p-6 hover:bg-white/15 transition-all duration-300 text-left overflow-hidden"
+        >
+          <!-- Accent Bar -->
+          <div class="absolute top-0 left-0 right-0 h-1 bg-red-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+
+          <!-- Icon -->
+          <div class="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center mb-4 group-hover:bg-red-500/30 transition-colors duration-300">
+            <svg class="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><text x="9" y="15" fill="white" font-size="6" font-weight="bold">PDF</text>
+            </svg>
+          </div>
+
+          <h3 class="font-bold mb-2">PDF Document</h3>
+          <p class="text-sm text-[var(--text-secondary)]">Idéal pour les candidatures en ligne et par email</p>
+
+          <div class="flex items-center justify-between mt-4">
+            <span class="inline-block px-3 py-1 text-xs rounded-full bg-red-500/20 text-red-500 font-semibold">PDF</span>
+            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </button>
+
+        <!-- DOCX Option -->
+        <button
+          id="export-docx-btn"
+          class="group relative glass rounded-lg p-6 hover:bg-white/15 transition-all duration-300 text-left overflow-hidden"
+        >
+          <!-- Accent Bar -->
+          <div class="absolute top-0 left-0 right-0 h-1 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+
+          <!-- Icon -->
+          <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors duration-300">
+            <svg class="w-6 h-6 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><text x="7" y="16" fill="white" font-size="6" font-weight="bold">DOCX</text>
+            </svg>
+          </div>
+
+          <h3 class="font-bold mb-2">Word Document</h3>
+          <p class="text-sm text-[var(--text-secondary)]">Parfait pour l'édition et les systèmes ATS</p>
+
+          <div class="flex items-center justify-between mt-4">
+            <span class="inline-block px-3 py-1 text-xs rounded-full bg-blue-500/20 text-blue-500 font-semibold">DOCX</span>
+            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </button>
+      </div>
+
+      <!-- Status Bar -->
+      <div id="export-status" class="text-center text-sm text-[var(--text-secondary)]"></div>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ 
+  firstName, 
+  lastName,
+  portfolioData: JSON.stringify(portfolioData)
+}}>
+  const modal = document.getElementById('resume-export-modal');
+  const backdrop = document.getElementById('resume-modal-backdrop');
+  const closeBtn = document.getElementById('resume-close');
+  const pdfBtn = document.getElementById('export-pdf-btn');
+  const docxBtn = document.getElementById('export-docx-btn');
+  const statusDiv = document.getElementById('export-status');
+
+  const data = JSON.parse(portfolioData);
+
+  // Parse resume data
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    return dateStr; // Already formatted in data
+  }
+
+  function generateResumeTxt() {
+    let resume = '';
+    
+    // Header
+    resume += `${data.personal.firstName.toUpperCase()} ${data.personal.lastName.toUpperCase()}\n`;
+    resume += `${data.personal.title}\n`;
+    resume += `${data.personal.email} | ${data.personal.location}\n`;
+    resume += '\n' + '='.repeat(80) + '\n\n';
+
+    // Professional Summary
+    if (data.personal.bio) {
+      resume += 'PROFESSIONAL SUMMARY\n';
+      resume += '-'.repeat(80) + '\n';
+      resume += data.personal.bio + '\n\n';
+    }
+
+    // Experience
+    if (data.experience && data.experience.length > 0) {
+      resume += 'EXPERIENCE\n';
+      resume += '-'.repeat(80) + '\n';
+      data.experience.forEach(exp => {
+        resume += `${exp.role}\n`;
+        resume += `${exp.company} | ${exp.startDate}${exp.endDate ? ' - ' + exp.endDate : ' - Present'}\n`;
+        resume += exp.description + '\n';
+        if (exp.skills) {
+          resume += `Skills: ${exp.skills.join(', ')}\n`;
+        }
+        resume += '\n';
+      });
+      resume += '\n';
+    }
+
+    // Education
+    if (data.education && data.education.length > 0) {
+      resume += 'EDUCATION\n';
+      resume += '-'.repeat(80) + '\n';
+      data.education.forEach(edu => {
+        resume += `${edu.degree}\n`;
+        resume += `${edu.field} | ${edu.institution}\n`;
+        resume += `${edu.startYear}${edu.endYear ? ' - ' + edu.endYear : ' - Present'}\n`;
+        if (edu.description) resume += edu.description + '\n';
+        resume += '\n';
+      });
+      resume += '\n';
+    }
+
+    // Skills
+    resume += 'SKILLS\n';
+    resume += '-'.repeat(80) + '\n';
+    data.skills.technical.forEach(skill => {
+      resume += `${skill.category}: ${skill.items.join(', ')}\n`;
+    });
+    if (data.skills.soft && data.skills.soft.length > 0) {
+      resume += '\nSOFT SKILLS:\n';
+      data.skills.soft.forEach(skill => {
+        resume += `${skill.name}: ${skill.description}\n`;
+      });
+    }
+    resume += '\n';
+
+    // Projects
+    if (data.projects && data.projects.length > 0) {
+      resume += 'PROJECTS\n';
+      resume += '-'.repeat(80) + '\n';
+      data.projects.forEach(proj => {
+        resume += `${proj.title}\n`;
+        resume += proj.description + '\n';
+        resume += `Technologies: ${proj.technologies.join(', ')}\n`;
+        resume += '\n';
+      });
+      resume += '\n';
+    }
+
+    // Certifications
+    if (data.certifications && data.certifications.length > 0) {
+      resume += 'CERTIFICATIONS\n';
+      resume += '-'.repeat(80) + '\n';
+      data.certifications.forEach(cert => {
+        resume += `${cert.name} - ${cert.issuer} (${cert.date})\n`;
+        if (cert.skills) {
+          resume += `Skills: ${cert.skills.join(', ')}\n`;
+        }
+        resume += '\n';
+      });
+    }
+
+    return resume;
+  }
+
+  async function exportPDF() {
+    statusDiv.textContent = 'Génération du PDF...';
+    
+    try {
+      const { jsPDF } = await import('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 15;
+      const lineHeight = 7;
+      let yPos = margin;
+
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.text(`${firstName} ${lastName}`, pageWidth / 2, yPos, { align: 'center' });
+      yPos += lineHeight + 2;
+
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.text(`${data.personal.title}`, pageWidth / 2, yPos, { align: 'center' });
+      yPos += lineHeight;
+
+      doc.setFontSize(9);
+      doc.text(`${data.personal.email} | ${data.personal.location}`, pageWidth / 2, yPos, { align: 'center' });
+      yPos += lineHeight + 3;
+
+      // Helper function to add text with word wrap
+      function addSection(title, content) {
+        if (yPos > pageHeight - margin - 20) {
+          doc.addPage();
+          yPos = margin;
+        }
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.line(margin, yPos, pageWidth - margin, yPos);
+        yPos += 2;
+        doc.text(title, margin, yPos);
+        yPos += lineHeight + 1;
+
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(10);
+        
+        const lines = doc.splitTextToSize(content, pageWidth - margin * 2);
+        lines.forEach(line => {
+          if (yPos > pageHeight - margin) {
+            doc.addPage();
+            yPos = margin;
+          }
+          doc.text(line, margin, yPos);
+          yPos += lineHeight - 1;
+        });
+        yPos += 2;
+      }
+
+      // Add sections
+      if (data.personal.bio) {
+        addSection('PROFESSIONAL SUMMARY', data.personal.bio);
+      }
+
+      if (data.experience && data.experience.length > 0) {
+        let expText = '';
+        data.experience.forEach(exp => {
+          expText += `${exp.role} | ${exp.company} (${exp.startDate}${exp.endDate ? ' - ' + exp.endDate : ' - Present'})\n${exp.description}\n\n`;
+        });
+        addSection('EXPERIENCE', expText);
+      }
+
+      if (data.education && data.education.length > 0) {
+        let eduText = '';
+        data.education.forEach(edu => {
+          eduText += `${edu.degree} in ${edu.field} | ${edu.institution} (${edu.startYear}${edu.endYear ? ' - ' + edu.endYear : ' - Present'})\n`;
+          if (edu.description) eduText += edu.description + '\n\n';
+        });
+        addSection('EDUCATION', eduText);
+      }
+
+      // Skills
+      let skillsText = '';
+      data.skills.technical.forEach(skill => {
+        skillsText += `${skill.category}: ${skill.items.join(', ')}\n`;
+      });
+      addSection('TECHNICAL SKILLS', skillsText);
+
+      doc.save(`${firstName}_${lastName}_Resume.pdf`);
+      statusDiv.textContent = 'PDF téléchargé avec succès!';
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        statusDiv.textContent = '';
+      }, 1500);
+    } catch (error) {
+      console.error('PDF export error:', error);
+      statusDiv.textContent = 'Erreur lors de la génération du PDF';
+    }
+  }
+
+  async function exportDOCX() {
+    statusDiv.textContent = 'Génération du Word...';
+    
+    try {
+      const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell } = await import('https://cdn.jsdelivr.net/npm/docx@8.12.0/build/index.js');
+      const { saveAs } = await import('https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/filesaver.min.js');
+
+      const sections = [];
+
+      // Header
+      sections.push(
+        new Paragraph({
+          text: `${firstName} ${lastName}`,
+          bold: true,
+          size: 28
+        }),
+        new Paragraph({
+          text: data.personal.title,
+          size: 20
+        }),
+        new Paragraph({
+          text: `${data.personal.email} | ${data.personal.location}`,
+          size: 18
+        })
+      );
+
+      // Professional Summary
+      if (data.personal.bio) {
+        sections.push(
+          new Paragraph({
+            text: 'PROFESSIONAL SUMMARY',
+            bold: true,
+            size: 22
+          }),
+          new Paragraph({
+            text: data.personal.bio,
+            size: 20
+          })
+        );
+      }
+
+      // Experience
+      if (data.experience && data.experience.length > 0) {
+        sections.push(
+          new Paragraph({
+            text: 'EXPERIENCE',
+            bold: true,
+            size: 22
+          })
+        );
+        data.experience.forEach(exp => {
+          sections.push(
+            new Paragraph({
+              text: exp.role,
+              bold: true,
+              size: 20
+            }),
+            new Paragraph({
+              text: `${exp.company} | ${exp.startDate}${exp.endDate ? ' - ' + exp.endDate : ' - Present'}`,
+              italics: true,
+              size: 20
+            }),
+            new Paragraph({
+              text: exp.description,
+              size: 20
+            })
+          );
+        });
+      }
+
+      // Education
+      if (data.education && data.education.length > 0) {
+        sections.push(
+          new Paragraph({
+            text: 'EDUCATION',
+            bold: true,
+            size: 22
+          })
+        );
+        data.education.forEach(edu => {
+          sections.push(
+            new Paragraph({
+              text: edu.degree,
+              bold: true,
+              size: 20
+            }),
+            new Paragraph({
+              text: `${edu.field} | ${edu.institution}`,
+              italics: true,
+              size: 20
+            }),
+            new Paragraph({
+              text: `${edu.startYear}${edu.endYear ? ' - ' + edu.endYear : ' - Present'}`,
+              size: 20
+            })
+          );
+        });
+      }
+
+      // Skills
+      sections.push(
+        new Paragraph({
+          text: 'SKILLS',
+          bold: true,
+          size: 22
+        })
+      );
+      data.skills.technical.forEach(skill => {
+        sections.push(
+          new Paragraph({
+            text: `${skill.category}: ${skill.items.join(', ')}`,
+            size: 20
+          })
+        );
+      });
+
+      const doc = new Document({
+        sections: [{
+          children: sections
+        }]
+      });
+
+      Packer.toBlob(doc).then(blob => {
+        saveAs(blob, `${firstName}_${lastName}_Resume.docx`);
+        statusDiv.textContent = 'Word téléchargé avec succès!';
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          statusDiv.textContent = '';
+        }, 1500);
+      });
+    } catch (error) {
+      console.error('DOCX export error:', error);
+      statusDiv.textContent = 'Erreur lors de la génération du Word';
+    }
+  }
+
+  // Event Listeners
+  pdfBtn.addEventListener('click', exportPDF);
+  docxBtn.addEventListener('click', exportDOCX);
+
+  closeBtn.addEventListener('click', () => {
+    modal.classList.add('hidden');
+  });
+
+  backdrop.addEventListener('click', () => {
+    modal.classList.add('hidden');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      modal.classList.add('hidden');
+    }
+  });
+
+  // Open modal via custom event
+  document.addEventListener('openResumeExport', () => {
+    modal.classList.remove('hidden');
+  });
+</script>
+
+<style>
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+</style>

@@ -1,0 +1,125 @@
+---
+/**
+ * Skills.astro
+ * Technical and soft skills display with icons
+ */
+
+import { portfolioData } from '../data/portfolio';
+
+const technicalSkills = portfolioData.skills.technical;
+const softSkills = portfolioData.skills.soft || [];
+---
+
+<section id="skills" data-section class="py-20 md:py-32 bg-[var(--bg-secondary)]/50">
+  <div class="container max-w-6xl mx-auto px-4 md:px-8">
+    <!-- Section Title -->
+    <div class="mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4">
+        Mes <span class="gradient-text">Compétences</span>
+      </h2>
+      <p class="text-lg text-[var(--text-secondary)] max-w-2xl">
+        Un aperçu de mes capacités techniques et compétences transversales.
+      </p>
+    </div>
+
+    <!-- Technical Skills -->
+    <div class="mb-16">
+      <div class="flex items-center gap-4 mb-8">
+        <h3 class="text-2xl font-bold">Compétences Techniques</h3>
+        <div class="flex-1 h-px bg-gradient-to-r from-[var(--color-primary)] to-transparent"></div>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {technicalSkills.map((skill, index) => (
+          <div
+            data-animate
+            class="glass rounded-lg p-6 hover:bg-white/15 hover:shadow-lg transition-all duration-300 group"
+            style={`animation-delay: ${index * 100}ms;`}
+          >
+            <!-- Icon -->
+            <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-[var(--color-primary)]/20 to-[var(--color-accent)]/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:from-[var(--color-primary)]/40 group-hover:to-[var(--color-accent)]/40 transition-all duration-300">
+              <svg class="w-6 h-6 text-[var(--color-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                {skill.icon === 'Layers' && (
+                  <>
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                  </>
+                )}
+                {skill.icon === 'Server' && (
+                  <>
+                    <rect x="2" y="2" width="20" height="8" rx="2"/>
+                    <rect x="2" y="14" width="20" height="8" rx="2"/>
+                    <line x1="6" y1="6" x2="6" y2="6.01"/>
+                    <line x1="6" y1="18" x2="6" y2="18.01"/>
+                  </>
+                )}
+                {skill.icon === 'Cog' && (
+                  <>
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m6.08 0l4.24-4.24M1 12h6m6 0h6m-1.78 7.78l-4.24-4.24m-6.08 0l-4.24 4.24"/>
+                  </>
+                )}
+                {skill.icon === 'Code2' && (
+                  <>
+                    <polyline points="16 18 22 12 16 6"/>
+                    <polyline points="8 6 2 12 8 18"/>
+                  </>
+                )}
+              </svg>
+            </div>
+
+            <!-- Content -->
+            <h4 class="font-bold mb-3">{skill.category}</h4>
+            <div class="flex flex-wrap gap-2">
+              {skill.items.map((item) => (
+                <span class="text-xs px-3 py-1 rounded-full bg-white/5 text-[var(--text-secondary)] hover:bg-[var(--color-primary)]/20 hover:text-[var(--color-primary)] transition-colors duration-300">
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p class="text-xs text-[var(--text-muted)] mt-3 font-mono">
+              {skill.items.length} compétences
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Soft Skills (if available) -->
+    {softSkills.length > 0 && (
+      <div>
+        <div class="flex items-center gap-4 mb-8">
+          <h3 class="text-2xl font-bold">Compétences Transversales</h3>
+          <div class="flex-1 h-px bg-gradient-to-r from-[var(--color-accent)] to-transparent"></div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          {softSkills.map((skill, index) => (
+            <div
+              data-animate
+              class="glass rounded-lg p-6 hover:bg-white/15 hover:shadow-lg transition-all duration-300 group"
+              style={`animation-delay: ${(technicalSkills.length + index) * 100}ms;`}
+            >
+              <!-- Icon Accent -->
+              <div class="w-2 h-8 bg-gradient-to-b from-[var(--color-accent)] to-transparent rounded-full mb-4 group-hover:h-10 transition-all duration-300"></div>
+
+              <!-- Content -->
+              <h4 class="font-bold mb-2">{skill.name}</h4>
+              <p class="text-sm text-[var(--text-secondary)]">{skill.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    [data-animate] {
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+  }
+</style>

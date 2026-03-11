@@ -1,0 +1,66 @@
+---
+/**
+ * About.astro
+ * About section with numbered cards describing the student
+ */
+
+import { portfolioData } from '../data/portfolio';
+
+const aboutPoints = [
+  'Passionné par l\'innovation technologique et la création de solutions numériques impactantes.',
+  'Spécialisé dans le développement web full-stack avec une expertise en React, Node.js et architectures modernes.',
+  'Engagé dans l\'apprentissage continu et constamment à la recherche de nouveaux défis technologiques.',
+  'Capable de transformer des idées complexes en produits digitaux simples, élégants et performants.'
+];
+---
+
+<section id="about" data-section class="py-20 md:py-32">
+  <div class="container max-w-6xl mx-auto px-4 md:px-8">
+    <!-- Section Title -->
+    <div class="mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4">
+        À <span class="gradient-text">Propos</span>
+      </h2>
+      <p class="text-lg text-[var(--text-secondary)] max-w-2xl">
+        Découvrez qui je suis et ce qui m'anime en tant que développeur et créateur technologique.
+      </p>
+    </div>
+
+    <!-- About Cards Grid -->
+    <div class="grid md:grid-cols-2 gap-8">
+      {aboutPoints.map((point, index) => (
+        <div
+          data-animate
+          class="glass rounded-xl p-6 md:p-8 group hover:bg-white/15 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
+          style={`animation-delay: ${index * 100}ms;`}
+        >
+          <!-- Accent Bar -->
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[var(--color-primary)] to-[var(--color-accent)]"></div>
+
+          <!-- Top Gradient Line (appears on hover) -->
+          <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+          <!-- Number -->
+          <span class="text-5xl font-mono font-bold text-[var(--text-muted)] group-hover:text-[var(--color-primary)] transition-colors duration-300">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+
+          <!-- Content -->
+          <p class="text-[var(--text-secondary)] mt-4 leading-relaxed">
+            {point}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Staggered animation */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-animate] {
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+  }
+</style>

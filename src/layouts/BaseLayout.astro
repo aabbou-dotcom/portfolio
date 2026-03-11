@@ -1,0 +1,119 @@
+---
+/**
+ * BaseLayout.astro
+ * Main layout wrapper for all pages
+ * Handles: header, footer, theme, scroll animations, and backdrop gradients
+ */
+
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import BackToTop from '../components/BackToTop.astro';
+import AiAssistant from '../components/AiAssistant.astro';
+import ResumeExport from '../components/ResumeExport.astro';
+import { portfolioData } from '../data/portfolio';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = 'Ahmed Abbou - Portfolio', description = 'Portfolio professionnel d\'Ahmed Abbou' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a0f1e" />
+    
+    <title>{title}</title>
+    
+    <!-- Preconnect pour les polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!-- Theme Script - runs before render to prevent FOUC -->
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
+  </head>
+  
+  <body class="bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300">
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Fixed Background Decorations -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      <!-- Grid Background -->
+      <div 
+        class="absolute inset-0 opacity-5"
+        style="
+          backgroundImage: 
+            linear-gradient(90deg, var(--color-border) 1px, transparent 1px),
+            linear-gradient(0deg, var(--color-border) 1px, transparent 1px);
+          backgroundSize: 40px 40px;
+        "
+      ></div>
+      
+      <!-- Floating Orbs -->
+      <div class="absolute top-20 left-10 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl opacity-10 animate-float"></div>
+      <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl opacity-10 animate-float" style="animation-delay: 2s;"></div>
+    </div>
+    
+    <!-- Header -->
+    <Header />
+    
+    <!-- Main Content -->
+    <main id="main-content" class="relative z-10">
+      <slot />
+    </main>
+    
+    <!-- Footer -->
+    <Footer />
+    
+    <!-- Floating Components -->
+    <BackToTop />
+    <AiAssistant />
+    <ResumeExport />
+    
+    <!-- Scroll Reveal Script -->
+    <script is:inline>
+      // IntersectionObserver for scroll animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, observerOptions);
+
+      // Observe elements with animate-on-scroll class
+      document.querySelectorAll('[data-animate]').forEach((el) => {
+        observer.observe(el);
+      });
+    </script>
+    
+    <!-- Vercel Analytics -->
+    <script>
+      import { inject } from '@vercel/analytics';
+      inject();
+    </script>
+  </body>
+</html>
