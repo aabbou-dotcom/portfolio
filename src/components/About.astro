@@ -1,0 +1,51 @@
+---
+// About.astro - Section À propos
+// Grille deux colonnes de cartes numérotées avec animations
+
+import { portfolioData } from '../data/data';
+
+const { personal } = portfolioData;
+
+// Contenu de la section À propos
+const aboutContent = [
+  `Bonjour ! Je m'appelle ${personal.firstName} ${personal.lastName}, ${personal.title.toLowerCase()} passionné par l'informatique et les technologies modernes. Actuellement en formation à ${personal.location}, je me concentre sur le développement de solutions innovantes.`,
+  `Mon parcours académique m'a permis d'acquérir des compétences solides en programmation, algorithmique et développement logiciel. Je suis particulièrement intéressé par le développement web, l'intelligence artificielle et les technologies émergentes.`,
+  `En dehors de mes études, je participe à des projets personnels qui me permettent d'explorer de nouvelles technologies et de mettre en pratique mes connaissances. Je suis convaincu que l'apprentissage continu est essentiel dans notre domaine.`,
+  `Je suis toujours à la recherche de nouvelles opportunités pour apprendre, collaborer et contribuer à des projets impactants. N'hésitez pas à me contacter pour discuter de vos idées ou projets !`
+];
+---
+
+<section id="about" class="py-20 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Titre de section -->
+    <div class="text-center mb-16 reveal">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+        À propos de <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">moi</span>
+      </h2>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+        Découvrez mon parcours, mes motivations et ce qui me passionne dans l'informatique
+      </p>
+    </div>
+
+    <!-- Grille des cartes -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 stagger-children">
+      {aboutContent.map((paragraph, index) => (
+        <div class="group reveal">
+          <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-8 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/10 relative overflow-hidden">
+            <!-- Barre d'accent verticale -->
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500"></div>
+
+            <!-- Ligne gradient au survol -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 transform -translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+
+            <!-- Numéro -->
+            <div class="text-6xl font-bold text-gray-600 mb-4 font-mono">0{index + 1}</div>
+
+            <!-- Paragraphe -->
+            <p class="text-gray-300 leading-relaxed">{paragraph}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

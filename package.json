@@ -12,6 +12,13 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^6.0.5"
+    "@astrojs/vercel": "^10.0.1",
+    "@tailwindcss/vite": "^4.2.1",
+    "@vercel/analytics": "^2.0.1",
+    "astro": "^6.0.5",
+    "docx": "^9.6.1",
+    "file-saver": "^2.0.5",
+    "jspdf": "^4.2.1",
+    "tailwindcss": "^4.2.1"
   }
 }

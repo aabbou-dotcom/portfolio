@@ -1,0 +1,173 @@
+---
+// Contact.astro - Section Contact
+// Grille deux colonnes avec informations et formulaire
+
+import { portfolioData } from '../data/data';
+import { getIcon } from './icons';
+
+const { personal, socialLinks } = portfolioData;
+---
+
+<section id="contact" class="py-20 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Titre de section -->
+    <div class="text-center mb-16 reveal">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+        Me <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">contacter</span>
+      </h2>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+        Intéressé par une collaboration ? N'hésitez pas à me contacter
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <!-- Colonne informations -->
+      <div class="space-y-8 reveal">
+        <div>
+          <h3 class="text-2xl font-semibold mb-6 text-gray-200">Informations de contact</h3>
+          <p class="text-gray-400 mb-8">
+            Je suis toujours ouvert aux nouvelles opportunités et collaborations intéressantes.
+            N'hésitez pas à me contacter pour discuter de vos projets.
+          </p>
+        </div>
+
+        <!-- Cartes d'information -->
+        <div class="space-y-4">
+          <!-- Email -->
+          <div class="flex items-center p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg hover:bg-white/10 transition-all duration-200 group">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-200">
+              <span set:html={getIcon('Mail', 'w-6 h-6 text-blue-400')}></span>
+            </div>
+            <div>
+              <div class="text-sm text-gray-400 uppercase tracking-wide">Email</div>
+              <a href={`mailto:${personal.email}`} class="text-gray-200 hover:text-blue-400 transition-colors duration-200">
+                {personal.email}
+              </a>
+            </div>
+          </div>
+
+          <!-- Localisation -->
+          <div class="flex items-center p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg hover:bg-white/10 transition-all duration-200 group">
+            <div class="w-12 h-12 bg-gradient-to-br from-green-500/20 to-blue-500/20 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-200">
+              <span set:html={getIcon('MapPin', 'w-6 h-6 text-green-400')}></span>
+            </div>
+            <div>
+              <div class="text-sm text-gray-400 uppercase tracking-wide">Localisation</div>
+              <div class="text-gray-200">{personal.location}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liens sociaux -->
+        <div>
+          <h4 class="text-lg font-medium mb-4 text-gray-200">Suivez-moi</h4>
+          <div class="flex space-x-4">
+            {socialLinks.map(link => (
+              <a
+                href={link.url}
+                class="w-12 h-12 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 group"
+                aria-label={link.platform}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span set:html={getIcon(link.icon, 'w-6 h-6 group-hover:text-blue-400 transition-colors duration-200')}></span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Colonne formulaire -->
+      <div class="reveal">
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-8">
+          <h3 class="text-2xl font-semibold mb-6 text-gray-200">Envoyez-moi un message</h3>
+
+          <form id="contact-form" action="https://formsubmit.co/{personal.email}" method="POST" class="space-y-6">
+            <!-- Nom -->
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-300 uppercase tracking-wide mb-2">
+                Nom
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="Votre nom"
+              />
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-300 uppercase tracking-wide mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="votre.email@example.com"
+              />
+            </div>
+
+            <!-- Sujet -->
+            <div>
+              <label for="subject" class="block text-sm font-medium text-gray-300 uppercase tracking-wide mb-2">
+                Sujet
+              </label>
+              <input
+                type="text"
+                id="subject"
+                name="subject"
+                required
+                class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="Objet de votre message"
+              />
+            </div>
+
+            <!-- Message -->
+            <div>
+              <label for="message" class="block text-sm font-medium text-gray-300 uppercase tracking-wide mb-2">
+                Message
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                rows="5"
+                required
+                class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+                placeholder="Votre message..."
+              ></textarea>
+            </div>
+
+            <!-- Bouton d'envoi -->
+            <button
+              type="submit"
+              class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 group"
+            >
+              <span set:html={getIcon('Send', 'w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform duration-200')}></span>
+              Envoyer le message
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Gestion du formulaire
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+
+  form?.addEventListener('submit', (e) => {
+    // Le formulaire utilise formsubmit.co, pas besoin de JavaScript personnalisé
+    // Mais on peut ajouter une animation de succès
+    setTimeout(() => {
+      // Animation de succès (optionnel)
+      console.log('Form submitted');
+    }, 1000);
+  });
+</script>

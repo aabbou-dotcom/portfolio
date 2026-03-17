@@ -1,0 +1,68 @@
+---
+// Education.astro - Section Éducation
+// Timeline verticale avec cartes d'éducation
+
+import { portfolioData } from '../data/data';
+import { getIcon } from './icons';
+
+const { education } = portfolioData;
+---
+
+<section id="education" class="py-20 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Titre de section -->
+    <div class="text-center mb-16 reveal">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+        Mon <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">parcours</span>
+      </h2>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+        Formation académique et apprentissage continu
+      </p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="relative">
+      <!-- Trait vertical -->
+      <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 to-purple-500 hidden md:block"></div>
+
+      <div class="space-y-12">
+        {education.map((item, index) => (
+          <div class="relative flex items-start reveal" class:list={{ 'md:flex-row-reverse': index % 2 === 1 }}>
+            <!-- Point de timeline -->
+            <div class="absolute left-6 w-4 h-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full border-4 border-gray-900 hidden md:block">
+              <div class="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-75"></div>
+            </div>
+
+            <!-- Carte -->
+            <div class="ml-16 md:ml-0 md:mr-8 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 hover:bg-white/10 transition-all duration-300 hover:scale-105 flex-1">
+              <!-- Badge période -->
+              <div class="inline-block px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium rounded-full mb-4">
+                {item.period}
+              </div>
+
+              <!-- Diplôme -->
+              <h3 class="text-xl font-semibold mb-2 text-gray-200">{item.degree}</h3>
+
+              <!-- Domaine -->
+              <p class="text-purple-400 mb-4">{item.field}</p>
+
+              <!-- Institution avec lien -->
+              <a
+                href={item.institutionLink}
+                class="inline-flex items-center text-gray-300 hover:text-blue-400 transition-colors duration-200 mb-4 group"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {item.institution}
+                <span set:html={getIcon('ExternalLink', 'w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200')}></span>
+              </a>
+
+              <!-- Description -->
+              <p class="text-gray-400 leading-relaxed">{item.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

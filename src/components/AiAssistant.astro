@@ -1,0 +1,387 @@
+---
+// AiAssistant.astro - Assistant IA flottant
+// Chatbot avec base de connaissances intégrée
+
+import { portfolioData } from '../data/data';
+import { getIcon } from './icons';
+
+const { personal, stats, technicalSkills, softSkills, education, projects, socialLinks } = portfolioData;
+---
+
+<!-- Bouton toggle -->
+<button
+  id="ai-assistant-toggle"
+  class="fixed bottom-6 left-6 w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-all duration-200 z-40 group"
+  aria-label="Ouvrir l'assistant IA"
+>
+  <span id="ai-icon" set:html={getIcon('Brain', 'w-7 h-7')}></span>
+  <!-- Anneau pulsant -->
+  <div class="absolute inset-0 rounded-full bg-blue-500/30 animate-ping"></div>
+</button>
+
+<!-- Panneau de chat -->
+<div
+  id="ai-chat-panel"
+  class="fixed bottom-24 left-6 w-80 max-w-[calc(100vw-3rem)] bg-gray-900/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl opacity-0 invisible transform scale-95 transition-all duration-200 z-50"
+>
+  <!-- Header -->
+  <div class="flex items-center justify-between p-4 border-b border-white/10">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+        <span set:html={getIcon('Brain', 'w-5 h-5 text-white')}></span>
+      </div>
+      <div>
+        <div class="text-white font-semibold text-sm">Portfolio AI</div>
+        <div class="text-green-400 text-xs flex items-center">
+          <div class="w-2 h-2 bg-green-400 rounded-full mr-1"></div>
+          Online
+        </div>
+      </div>
+    </div>
+    <button
+      id="ai-close"
+      class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors duration-200"
+    >
+      <span set:html={getIcon('X', 'w-5 h-5')}></span>
+    </button>
+  </div>
+
+  <!-- Zone de messages -->
+  <div id="chat-messages" class="h-80 overflow-y-auto p-4 space-y-4">
+    <!-- Messages apparaîtront ici -->
+  </div>
+
+  <!-- Barre de saisie -->
+  <div class="p-4 border-t border-white/10">
+    <div class="flex space-x-2">
+      <input
+        type="text"
+        id="chat-input"
+        placeholder="Posez-moi une question..."
+        class="flex-1 px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+      />
+      <button
+        id="chat-send"
+        class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 hover:scale-105 flex items-center justify-center"
+      >
+        <span set:html={getIcon('Send', 'w-4 h-4')}></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Base de connaissances
+  const knowledgeBase = {
+    personal: {
+      name: `${personal.firstName} ${personal.lastName}`,
+      title: personal.title,
+      subtitle: personal.subtitle,
+      email: personal.email,
+      location: personal.location
+    },
+    stats,
+    technicalSkills,
+    softSkills,
+    education,
+    projects,
+    socialLinks,
+    navItems: ['hero', 'about', 'skills', 'education', 'projects', 'contact']
+  };
+
+  // Fonction de matching par mots-clés
+  function findIntent(message: string): string {
+    const msg = message.toLowerCase();
+
+    // Salutations
+    if (msg.match(/\b(salut|bonjour|hello|hi|hey)\b/)) {
+      return 'greeting';
+    }
+
+    // À propos
+    if (msg.match(/\b(qui es-tu|présente-toi|à propos|qui est|parle-moi de toi)\b/)) {
+      return 'about';
+    }
+
+    // Compétences
+    if (msg.match(/\b(compétences|skills|technologies|langages|frameworks)\b/)) {
+      return 'skills';
+    }
+
+    // Éducation
+    if (msg.match(/\b(éducation|formation|études|diplôme|université|école)\b/)) {
+      return 'education';
+    }
+
+    // Projets
+    if (msg.match(/\b(projets|réalisations|portfolio|travaux)\b/)) {
+      return 'projects';
+    }
+
+    // Contact
+    if (msg.match(/\b(contact|email|téléphone|adresse|joindre)\b/)) {
+      return 'contact';
+    }
+
+    // Navigation
+    if (msg.match(/\b(aller à|voir|montre|section)\b/)) {
+      return 'navigate';
+    }
+
+    // Aide
+    if (msg.match(/\b(aide|help|commandes|que peux-tu faire)\b/)) {
+      return 'help';
+    }
+
+    // Remerciements
+    if (msg.match(/\b(merci|thanks|thank you)\b/)) {
+      return 'thanks';
+    }
+
+    return 'unknown';
+  }
+
+  // Générer une réponse
+  function generateResponse(intent: string, message: string): { text: string, actions?: string[] } {
+    switch (intent) {
+      case 'greeting':
+        return {
+          text: `Bonjour ! Je suis l'assistant IA de ${knowledgeBase.personal.name}. Je peux vous aider à en savoir plus sur son parcours, ses compétences, ses projets, et bien plus encore. Que souhaitez-vous savoir ?`,
+          actions: ['Qui est Ahmed ?', 'Compétences', 'Projets', 'Éducation', 'Contact']
+        };
+
+      case 'about':
+        return {
+          text: `${knowledgeBase.personal.name} est ${knowledgeBase.personal.title.toLowerCase()} basé à ${knowledgeBase.personal.location}. ${knowledgeBase.personal.subtitle} Il a réalisé ${knowledgeBase.stats[0].value} projets et maîtrise ${knowledgeBase.stats[1].value} technologies.`
+        };
+
+      case 'skills':
+        const techCount = knowledgeBase.technicalSkills.reduce((acc, cat) => acc + cat.skills.length, 0);
+        return {
+          text: `${knowledgeBase.personal.name} maîtrise ${techCount} technologies réparties en ${knowledgeBase.technicalSkills.length} catégories : ${knowledgeBase.technicalSkills.map(cat => cat.name.toLowerCase()).join(', ')}. Il possède également des compétences transversales comme ${knowledgeBase.softSkills.map(s => s.name.toLowerCase()).join(', ')}.`
+        };
+
+      case 'education':
+        const latestEdu = knowledgeBase.education[0];
+        return {
+          text: `${knowledgeBase.personal.name} a obtenu un ${latestEdu.degree} en ${latestEdu.field} à ${latestEdu.institution} (${latestEdu.period}). ${latestEdu.description}`
+        };
+
+      case 'projects':
+        return {
+          text: `${knowledgeBase.personal.name} a réalisé ${knowledgeBase.projects.length} projets, dont "${knowledgeBase.projects[0].title}" utilisant ${knowledgeBase.projects[0].tags.join(', ')}. Découvrez tous ses projets dans la section dédiée !`,
+          actions: ['Voir les projets']
+        };
+
+      case 'contact':
+        return {
+          text: `Vous pouvez contacter ${knowledgeBase.personal.name} par email à ${knowledgeBase.personal.email} ou via ses réseaux sociaux : ${knowledgeBase.socialLinks.map(s => s.platform).join(', ')}.`
+        };
+
+      case 'navigate':
+        if (message.toLowerCase().includes('compétences') || message.toLowerCase().includes('skills')) {
+          return { text: 'Je vous emmène à la section Compétences !', actions: ['#skills'] };
+        }
+        if (message.toLowerCase().includes('projets') || message.toLowerCase().includes('projects')) {
+          return { text: 'Je vous emmène à la section Projets !', actions: ['#projects'] };
+        }
+        if (message.toLowerCase().includes('éducation') || message.toLowerCase().includes('education')) {
+          return { text: 'Je vous emmène à la section Éducation !', actions: ['#education'] };
+        }
+        if (message.toLowerCase().includes('contact')) {
+          return { text: 'Je vous emmène à la section Contact !', actions: ['#contact'] };
+        }
+        return { text: 'Je peux vous aider à naviguer vers : Compétences, Projets, Éducation, Contact.' };
+
+      case 'help':
+        return {
+          text: 'Je peux vous renseigner sur : présentation, compétences techniques et soft, parcours éducatif, projets, informations de contact, et vous guider dans la navigation du portfolio.',
+          actions: ['Qui est Ahmed ?', 'Compétences', 'Projets', 'Contact']
+        };
+
+      case 'thanks':
+        return { text: 'De rien ! N\'hésitez pas si vous avez d\'autres questions.' };
+
+      default:
+        return {
+          text: 'Je ne suis pas sûr de comprendre votre question. Essayez de demander des informations sur les compétences, projets, éducation, ou contact.',
+          actions: ['Compétences', 'Projets', 'Éducation', 'Contact']
+        };
+    }
+  }
+
+  // Gestion de l'interface
+  const toggleBtn = document.getElementById('ai-assistant-toggle') as HTMLButtonElement;
+  const chatPanel = document.getElementById('ai-chat-panel') as HTMLElement;
+  const closeBtn = document.getElementById('ai-close') as HTMLButtonElement;
+  const messagesContainer = document.getElementById('chat-messages') as HTMLElement;
+  const input = document.getElementById('chat-input') as HTMLInputElement;
+  const sendBtn = document.getElementById('chat-send') as HTMLButtonElement;
+
+  let isOpen = false;
+  let isTyping = false;
+
+  function toggleChat() {
+    isOpen = !isOpen;
+
+    if (isOpen) {
+      chatPanel.classList.remove('opacity-0', 'invisible', 'scale-95');
+      chatPanel.classList.add('opacity-100', 'visible', 'scale-100');
+      input.focus();
+    } else {
+      chatPanel.classList.remove('opacity-100', 'visible', 'scale-100');
+      chatPanel.classList.add('opacity-0', 'invisible', 'scale-95');
+    }
+  }
+
+  function addMessage(text: string, isBot: boolean = true, actions?: string[]) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `flex ${isBot ? 'justify-start' : 'justify-end'}`;
+
+    const bubble = document.createElement('div');
+    bubble.className = `max-w-[80%] px-4 py-3 rounded-2xl text-sm ${
+      isBot
+        ? 'bg-gray-800/50 text-gray-200 rounded-bl-md'
+        : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-br-md'
+    }`;
+
+    if (isBot) {
+      const avatar = document.createElement('div');
+      avatar.className = 'w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0';
+      avatar.innerHTML = `{getIcon('Brain', 'w-4 h-4 text-white')}`;
+      bubble.className += ' flex items-start';
+      bubble.appendChild(avatar);
+    }
+
+    const textDiv = document.createElement('div');
+    textDiv.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>');
+    bubble.appendChild(textDiv);
+
+    messageDiv.appendChild(bubble);
+    messagesContainer.appendChild(messageDiv);
+
+    // Ajouter les actions rapides
+    if (actions && actions.length > 0) {
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'flex flex-wrap gap-2 mt-3';
+      actions.forEach(action => {
+        const btn = document.createElement('button');
+        btn.className = 'px-3 py-2 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 text-xs rounded-full border border-gray-600/50 transition-colors duration-200';
+        btn.textContent = action;
+        btn.addEventListener('click', () => {
+          if (action.startsWith('#')) {
+            // Navigation
+            const section = document.querySelector(action);
+            if (section) {
+              section.scrollIntoView({ behavior: 'smooth' });
+              toggleChat();
+            }
+          } else {
+            // Envoyer comme message
+            input.value = action;
+            sendMessage();
+          }
+        });
+        actionsDiv.appendChild(btn);
+      });
+      messageDiv.appendChild(actionsDiv);
+    }
+
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  function showTyping() {
+    if (isTyping) return;
+
+    isTyping = true;
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'flex justify-start';
+    typingDiv.id = 'typing-indicator';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bg-gray-800/50 px-4 py-3 rounded-2xl rounded-bl-md flex items-center space-x-1';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0';
+    avatar.innerHTML = `{getIcon('Brain', 'w-4 h-4 text-white')}`;
+    bubble.appendChild(avatar);
+
+    const dots = document.createElement('div');
+    dots.className = 'flex space-x-1';
+    for (let i = 0; i < 3; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'w-2 h-2 bg-gray-400 rounded-full animate-bounce';
+      dot.style.animationDelay = `${i * 0.2}s`;
+      dots.appendChild(dot);
+    }
+    bubble.appendChild(dots);
+
+    typingDiv.appendChild(bubble);
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  function hideTyping() {
+    const typingIndicator = document.getElementById('typing-indicator');
+    if (typingIndicator) {
+      typingIndicator.remove();
+    }
+    isTyping = false;
+  }
+
+  function sendMessage() {
+    const message = input.value.trim();
+    if (!message) return;
+
+    // Ajouter le message utilisateur
+    addMessage(message, false);
+    input.value = '';
+
+    // Afficher l'indicateur de frappe
+    showTyping();
+
+    // Simuler un délai de réponse
+    setTimeout(() => {
+      hideTyping();
+      const intent = findIntent(message);
+      const response = generateResponse(intent, message);
+      addMessage(response.text, true, response.actions);
+
+      // Gérer la navigation automatique
+      if (response.actions && response.actions.some(a => a.startsWith('#'))) {
+        const navAction = response.actions.find(a => a.startsWith('#'));
+        if (navAction) {
+          setTimeout(() => {
+            const section = document.querySelector(navAction);
+            if (section) {
+              section.scrollIntoView({ behavior: 'smooth' });
+              toggleChat();
+            }
+          }, 1000);
+        }
+      }
+    }, 1000 + Math.random() * 1000); // Délai aléatoire entre 1-2s
+  }
+
+  // Événements
+  toggleBtn?.addEventListener('click', toggleChat);
+  closeBtn?.addEventListener('click', toggleChat);
+  sendBtn?.addEventListener('click', sendMessage);
+  input?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+
+  // Fermer avec Échap
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) {
+      toggleChat();
+    }
+  });
+
+  // Initialiser avec un message de bienvenue
+  setTimeout(() => {
+    addMessage(`Bonjour ! Je suis l'assistant IA de ${knowledgeBase.personal.name}. Comment puis-je vous aider à découvrir son portfolio ?`, true, ['Qui est Ahmed ?', 'Compétences', 'Projets', 'Contact']);
+  }, 1000);
+</script>

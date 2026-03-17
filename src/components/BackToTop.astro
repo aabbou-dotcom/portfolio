@@ -1,0 +1,47 @@
+---
+// BackToTop.astro - Bouton flottant retour en haut
+// Apparaît après scroll, avec animation et glassmorphism
+
+import { getIcon } from './icons';
+---
+
+<button
+  id="back-to-top"
+  class="fixed bottom-6 right-6 w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg flex items-center justify-center text-white opacity-0 invisible transition-all duration-300 hover:scale-110 hover:bg-white/20 z-40 group"
+  aria-label="Retour en haut"
+>
+  <span set:html={getIcon('ArrowUp', 'w-6 h-6 group-hover:-translate-y-1 transition-transform duration-200')}></span>
+</button>
+
+<script>
+  const backToTopBtn = document.getElementById('back-to-top') as HTMLButtonElement;
+  let isVisible = false;
+
+  function toggleBackToTop() {
+    const shouldShow = window.scrollY > 500;
+
+    if (shouldShow && !isVisible) {
+      backToTopBtn.classList.remove('opacity-0', 'invisible');
+      backToTopBtn.classList.add('opacity-100', 'visible');
+      isVisible = true;
+    } else if (!shouldShow && isVisible) {
+      backToTopBtn.classList.remove('opacity-100', 'visible');
+      backToTopBtn.classList.add('opacity-0', 'invisible');
+      isVisible = false;
+    }
+  }
+
+  // Écouter le scroll
+  window.addEventListener('scroll', toggleBackToTop);
+
+  // Gestion du clic
+  backToTopBtn?.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+
+  // Initial check
+  toggleBackToTop();
+</script>

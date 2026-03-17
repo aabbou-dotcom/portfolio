@@ -1,0 +1,354 @@
+---
+// ResumeExport.astro - Modal d'export du CV
+// Génère PDF et Word à partir des données
+
+import { portfolioData } from '../data/data';
+import { getIcon } from './icons';
+
+const { personal, stats, technicalSkills, softSkills, education, experience, projects, socialLinks } = portfolioData;
+---
+
+<!-- Modal backdrop -->
+<div
+  id="resume-modal-backdrop"
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 invisible transition-all duration-300 z-50 flex items-center justify-center p-4"
+>
+  <div
+    id="resume-modal"
+    class="bg-gray-900/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl max-w-md w-full transform scale-95 transition-all duration-200"
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b border-white/10">
+      <h2 class="text-xl font-semibold text-white">Télécharger CV</h2>
+      <button
+        id="resume-modal-close"
+        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors duration-200"
+      >
+        <span set:html={getIcon('X', 'w-5 h-5')}></span>
+      </button>
+    </div>
+
+    <!-- Contenu -->
+    <div class="p-6">
+      <p class="text-gray-400 text-sm mb-6 text-center">
+        Choisissez le format de votre CV professionnel
+      </p>
+
+      <!-- Options de format -->
+      <div class="space-y-4">
+        <!-- PDF -->
+        <button
+          id="download-pdf"
+          class="w-full p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all duration-200 hover:scale-105 group"
+        >
+          <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <span set:html={getIcon('FileText', 'w-6 h-6 text-red-400')}></span>
+            </div>
+            <div class="flex-1 text-left">
+              <div class="text-white font-medium">Document PDF</div>
+              <div class="text-gray-400 text-sm">Meilleur pour les candidatures en ligne</div>
+            </div>
+            <div class="text-red-400 font-mono text-sm">PDF</div>
+          </div>
+        </button>
+
+        <!-- Word -->
+        <button
+          id="download-word"
+          class="w-full p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all duration-200 hover:scale-105 group"
+        >
+          <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <span set:html={getIcon('FileText', 'w-6 h-6 text-blue-400')}></span>
+            </div>
+            <div class="flex-1 text-left">
+              <div class="text-white font-medium">Document Word</div>
+              <div class="text-gray-400 text-sm">Meilleur pour l'édition et les ATS</div>
+            </div>
+            <div class="text-blue-400 font-mono text-sm">DOCX</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Barre de statut -->
+      <div id="download-status" class="mt-6 hidden">
+        <div class="flex items-center space-x-3 text-sm">
+          <div id="status-spinner" class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span id="status-text" class="text-gray-400">Génération en cours...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Événements du modal
+  const backdrop = document.getElementById('resume-modal-backdrop') as HTMLElement;
+  const modal = document.getElementById('resume-modal') as HTMLElement;
+  const closeBtn = document.getElementById('resume-modal-close') as HTMLButtonElement;
+  const pdfBtn = document.getElementById('download-pdf') as HTMLButtonElement;
+  const wordBtn = document.getElementById('download-word') as HTMLButtonElement;
+  const statusDiv = document.getElementById('download-status') as HTMLElement;
+  const statusText = document.getElementById('status-text') as HTMLElement;
+  const spinner = document.getElementById('status-spinner') as HTMLElement;
+
+  let isOpen = false;
+
+  function openModal() {
+    isOpen = true;
+    backdrop.classList.remove('opacity-0', 'invisible');
+    backdrop.classList.add('opacity-100', 'visible');
+    modal.classList.remove('scale-95');
+    modal.classList.add('scale-100');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    isOpen = false;
+    backdrop.classList.remove('opacity-100', 'visible');
+    backdrop.classList.add('opacity-0', 'invisible');
+    modal.classList.remove('scale-100');
+    modal.classList.add('scale-95');
+    document.body.style.overflow = '';
+    statusDiv.classList.add('hidden');
+  }
+
+  // Écouter l'événement custom
+  document.addEventListener('open-resume-modal', openModal);
+
+  closeBtn?.addEventListener('click', closeModal);
+  backdrop?.addEventListener('click', (e) => {
+    if (e.target === backdrop) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) {
+      closeModal();
+    }
+  });
+
+  // Fonction pour nettoyer le texte HTML
+  function cleanText(text: string): string {
+    return text.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ');
+  }
+
+  // Générer le PDF
+  async function generatePDF() {
+    const { jsPDF } = await import('jspdf');
+
+    statusText.textContent = 'Génération du PDF...';
+    statusDiv.classList.remove('hidden');
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    let yPosition = margin;
+
+    // Fonction pour ajouter du texte avec retour à la ligne
+    function addText(text: string, fontSize: number = 12, isBold: boolean = false) {
+      doc.setFontSize(fontSize);
+      if (isBold) doc.setFont('helvetica', 'bold');
+      else doc.setFont('helvetica', 'normal');
+
+      const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
+      doc.text(lines, margin, yPosition);
+      yPosition += lines.length * fontSize * 0.4 + 5;
+    }
+
+    // En-tête
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${personal.firstName} ${personal.lastName}`, margin, yPosition);
+    yPosition += 15;
+
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'normal');
+    doc.text(personal.title, margin, yPosition);
+    yPosition += 10;
+
+    // Ligne de contact
+    const contactLine = `${personal.email} | ${personal.location}`;
+    doc.setFontSize(10);
+    doc.text(contactLine, margin, yPosition);
+    yPosition += 15;
+
+    // Section Résumé
+    addText('RÉSUMÉ PROFESSIONNEL', 14, true);
+    addText(cleanText(personal.subtitle));
+    yPosition += 10;
+
+    // Section Expérience (si existe)
+    if (experience && experience.length > 0) {
+      addText('EXPÉRIENCE', 14, true);
+      experience.forEach(exp => {
+        addText(`${exp.role} - ${exp.company}`, 12, true);
+        addText(`${exp.period}`, 10);
+        addText(cleanText(exp.description));
+        yPosition += 5;
+      });
+      yPosition += 10;
+    }
+
+    // Section Éducation
+    addText('ÉDUCATION', 14, true);
+    education.forEach(edu => {
+      addText(`${edu.degree} - ${edu.field}`, 12, true);
+      addText(`${edu.institution} (${edu.period})`, 10);
+      addText(cleanText(edu.description));
+      yPosition += 5;
+    });
+    yPosition += 10;
+
+    // Section Compétences Techniques
+    addText('COMPÉTENCES TECHNIQUES', 14, true);
+    technicalSkills.forEach(category => {
+      addText(`${category.name}:`, 12, true);
+      addText(category.skills.join(', '));
+      yPosition += 5;
+    });
+    yPosition += 10;
+
+    // Section Compétences Soft
+    addText('COMPÉTENCES TRANSVERSALES', 14, true);
+    softSkills.forEach(skill => {
+      addText(`${skill.name}: ${cleanText(skill.description)}`);
+    });
+
+    // Téléchargement
+    const fileName = `${personal.firstName}_${personal.lastName}_Resume.pdf`;
+    doc.save(fileName);
+
+    statusText.textContent = 'PDF téléchargé avec succès !';
+    setTimeout(() => {
+      statusDiv.classList.add('hidden');
+      closeModal();
+    }, 2000);
+  }
+
+  // Générer le Word
+  async function generateWord() {
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import('docx');
+    const { saveAs } = await import('file-saver');
+
+    statusText.textContent = 'Génération du document Word...';
+    statusDiv.classList.remove('hidden');
+
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: [
+          // En-tête
+          new Paragraph({
+            children: [
+              new TextRun({ text: `${personal.firstName} ${personal.lastName}`, bold: true, size: 32 })
+            ]
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({ text: personal.title, size: 24 })
+            ]
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({ text: `${personal.email} | ${personal.location}`, size: 20 })
+            ]
+          }),
+          new Paragraph({ text: '' }),
+
+          // Résumé
+          new Paragraph({
+            children: [
+              new TextRun({ text: 'Résumé Professionnel', bold: true, size: 24 })
+            ],
+            heading: HeadingLevel.HEADING_1
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({ text: cleanText(personal.subtitle) })
+            ]
+          }),
+          new Paragraph({ text: '' }),
+
+          // Éducation
+          new Paragraph({
+            children: [
+              new TextRun({ text: 'Éducation', bold: true, size: 24 })
+            ],
+            heading: HeadingLevel.HEADING_1
+          }),
+          ...education.flatMap(edu => [
+            new Paragraph({
+              children: [
+                new TextRun({ text: `${edu.degree} - ${edu.field}`, bold: true })
+              ]
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: `${edu.institution} (${edu.period})` })
+              ]
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: cleanText(edu.description) })
+              ]
+            }),
+            new Paragraph({ text: '' })
+          ]),
+
+          // Compétences Techniques
+          new Paragraph({
+            children: [
+              new TextRun({ text: 'Compétences Techniques', bold: true, size: 24 })
+            ],
+            heading: HeadingLevel.HEADING_1
+          }),
+          ...technicalSkills.flatMap(category => [
+            new Paragraph({
+              children: [
+                new TextRun({ text: `${category.name}:`, bold: true })
+              ]
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: category.skills.join(', ') })
+              ]
+            }),
+            new Paragraph({ text: '' })
+          ]),
+
+          // Compétences Soft
+          new Paragraph({
+            children: [
+              new TextRun({ text: 'Compétences Transversales', bold: true, size: 24 })
+            ],
+            heading: HeadingLevel.HEADING_1
+          }),
+          ...softSkills.map(skill => 
+            new Paragraph({
+              children: [
+                new TextRun({ text: `${skill.name}: ${cleanText(skill.description)}` })
+              ]
+            })
+          )
+        ]
+      }]
+    });
+
+    const buffer = await Packer.toBuffer(doc);
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const fileName = `${personal.firstName}_${personal.lastName}_Resume.docx`;
+    saveAs(blob, fileName);
+
+    statusText.textContent = 'Document Word téléchargé avec succès !';
+    setTimeout(() => {
+      statusDiv.classList.add('hidden');
+      closeModal();
+    }, 2000);
+  }
+
+  pdfBtn?.addEventListener('click', generatePDF);
+  wordBtn?.addEventListener('click', generateWord);
+</script>

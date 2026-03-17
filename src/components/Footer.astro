@@ -1,0 +1,75 @@
+---
+// Footer.astro - Pied de page du site
+// Grille trois colonnes avec marque, navigation et connexions
+
+import { portfolioData } from '../data/data';
+import { getIcon } from './icons';
+
+const { personal, navItems, socialLinks } = portfolioData;
+---
+
+<footer class="bg-gray-900/50 backdrop-blur-sm border-t border-white/10 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Colonne marque -->
+      <div class="space-y-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <span class="text-white font-bold text-lg">A</span>
+          </div>
+          <div>
+            <div class="text-xl font-bold text-white">{personal.firstName} {personal.lastName}</div>
+            <div class="text-sm text-gray-400">{personal.title}</div>
+          </div>
+        </div>
+        <p class="text-gray-400 text-sm leading-relaxed">
+          Portfolio d'un étudiant passionné par l'informatique et les technologies modernes.
+          Toujours en quête de nouveaux défis et apprentissages.
+        </p>
+      </div>
+
+      <!-- Colonne navigation rapide -->
+      <div>
+        <h3 class="text-lg font-semibold text-white mb-4">Navigation</h3>
+        <nav class="space-y-2">
+          {navItems.map(item => (
+            <a
+              href={item.href}
+              class="block text-gray-400 hover:text-blue-400 transition-colors duration-200 text-sm"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      </div>
+
+      <!-- Colonne connexions -->
+      <div>
+        <h3 class="text-lg font-semibold text-white mb-4">Connexions</h3>
+        <div class="space-y-3">
+          {socialLinks.map(link => (
+            <a
+              href={link.url}
+              class="inline-flex items-center text-gray-400 hover:text-blue-400 transition-colors duration-200 text-sm group"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span set:html={getIcon(link.icon, 'w-4 h-4 mr-3 group-hover:translate-x-1 transition-transform duration-200')}></span>
+              {link.platform}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- Barre inférieure -->
+    <div class="border-t border-white/10 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
+      <div class="text-gray-400 text-sm mb-4 sm:mb-0">
+        © 2026 {personal.firstName} {personal.lastName}. Tous droits réservés.
+      </div>
+      <div class="text-gray-400 text-sm">
+        Construit avec <span class="text-orange-400">Astro</span> et déployé sur <span class="text-white">Vercel</span>
+      </div>
+    </div>
+  </div>
+</footer>

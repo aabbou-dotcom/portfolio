@@ -1,0 +1,258 @@
+---
+// Header.astro - Navigation principale avec menu mobile et thème
+// Sticky header avec glassmorphism, navigation adaptative,
+// bouton thème soleil/lune, menu hamburger animé
+
+import { portfolioData } from '../data/data';
+import { getIcon } from './icons';
+
+const navItems = portfolioData.navItems;
+---
+
+<header id="header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent backdrop-blur-md border-b border-white/10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href="#hero" class="flex items-center space-x-2 group">
+        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+          <span class="text-white font-bold text-sm">A</span>
+        </div>
+        <span class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          {portfolioData.personal.firstName} {portfolioData.personal.lastName}
+        </span>
+      </a>
+
+      <!-- Navigation Desktop -->
+      <nav class="hidden md:flex items-center space-x-8">
+        {navItems.map(item => (
+          <a
+            href={item.href}
+            class="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-200 group"
+            data-nav-link
+          >
+            <span set:html={getIcon(item.icon, 'w-4 h-4 group-hover:scale-110 transition-transform duration-200')}></span>
+            <span>{item.label}</span>
+          </a>
+        ))}
+      </nav>
+
+      <!-- Boutons de droite -->
+      <div class="flex items-center space-x-4">
+        <!-- Bouton thème -->
+        <button
+          id="theme-toggle"
+          class="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all duration-200 hover:scale-105"
+          aria-label="Basculer le thème"
+        >
+          <span id="theme-icon" set:html={getIcon('Moon', 'w-5 h-5')}></span>
+        </button>
+
+        <!-- Bouton hamburger mobile -->
+        <button
+          id="mobile-menu-toggle"
+          class="md:hidden w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col items-center justify-center space-y-1 transition-all duration-200"
+          aria-label="Ouvrir le menu"
+        >
+          <span class="w-5 h-0.5 bg-white transition-all duration-200" id="hamburger-line-1"></span>
+          <span class="w-5 h-0.5 bg-white transition-all duration-200" id="hamburger-line-2"></span>
+          <span class="w-5 h-0.5 bg-white transition-all duration-200" id="hamburger-line-3"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu mobile -->
+  <div id="mobile-menu" class="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 invisible transition-all duration-300 z-40">
+    <div id="mobile-menu-content" class="absolute right-0 top-0 h-full w-80 max-w-[90vw] bg-gray-900/95 backdrop-blur-xl border-l border-white/10 transform translate-x-full transition-transform duration-300">
+      <!-- Header du menu -->
+      <div class="flex items-center justify-between p-6 border-b border-white/10">
+        <span class="text-lg font-semibold">Menu</span>
+        <button id="mobile-menu-close" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors duration-200">
+          <span set:html={getIcon('X', 'w-5 h-5')}></span>
+        </button>
+      </div>
+
+      <!-- Navigation mobile -->
+      <nav class="p-6 space-y-4">
+        {navItems.map(item => (
+          <a
+            href={item.href}
+            class="flex items-center space-x-3 p-3 rounded-lg hover:bg-white/10 transition-colors duration-200 group"
+            data-mobile-nav-link
+          >
+            <span set:html={getIcon(item.icon, 'w-5 h-5 group-hover:scale-110 transition-transform duration-200')}></span>
+            <span class="text-gray-300 group-hover:text-white transition-colors duration-200">{item.label}</span>
+          </a>
+        ))}
+      </nav>
+
+      <!-- Liens sociaux -->
+      <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-white/10">
+        <div class="flex justify-center space-x-4">
+          {portfolioData.socialLinks.map(link => (
+            <a
+              href={link.url}
+              class="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all duration-200 hover:scale-110"
+              aria-label={link.platform}
+            >
+              <span set:html={getIcon(link.icon, 'w-5 h-5')}></span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Icônes SVG
+  const icons = {
+    Moon: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+    Sun: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 6.34-1.41 1.41"/><path d="m19.07 19.07-1.41 1.41"/></svg>`
+  };
+
+  // Gestion du thème
+  const themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement;
+  const themeIcon = document.getElementById('theme-icon') as HTMLElement;
+  const html = document.documentElement;
+
+  function updateThemeIcon() {
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    themeIcon.innerHTML = isDark ? icons.Moon : icons.Sun;
+  }
+
+  themeToggle?.addEventListener('click', () => {
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon();
+
+    // Mettre à jour la meta theme-color
+    const themeColor = newTheme === 'dark' ? '#0a0f1e' : '#f8fafc';
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor);
+  });
+
+  // Initialiser l'icône du thème
+  updateThemeIcon();
+
+  // Gestion du menu mobile
+  const mobileMenuToggle = document.getElementById('mobile-menu-toggle') as HTMLButtonElement;
+  const mobileMenu = document.getElementById('mobile-menu') as HTMLElement;
+  const mobileMenuContent = document.getElementById('mobile-menu-content') as HTMLElement;
+  const mobileMenuClose = document.getElementById('mobile-menu-close') as HTMLButtonElement;
+  const hamburgerLines = [
+    document.getElementById('hamburger-line-1') as HTMLElement,
+    document.getElementById('hamburger-line-2') as HTMLElement,
+    document.getElementById('hamburger-line-3') as HTMLElement
+  ];
+
+  let isMenuOpen = false;
+
+  function toggleMobileMenu() {
+    isMenuOpen = !isMenuOpen;
+
+    if (isMenuOpen) {
+      mobileMenu.classList.remove('opacity-0', 'invisible');
+      mobileMenu.classList.add('opacity-100', 'visible');
+      mobileMenuContent.classList.remove('translate-x-full');
+      mobileMenuContent.classList.add('translate-x-0');
+      document.body.style.overflow = 'hidden';
+
+      // Animation hamburger vers X
+      hamburgerLines[0].style.transform = 'rotate(45deg) translate(6px, 6px)';
+      hamburgerLines[1].style.opacity = '0';
+      hamburgerLines[2].style.transform = 'rotate(-45deg) translate(6px, -6px)';
+    } else {
+      mobileMenu.classList.remove('opacity-100', 'visible');
+      mobileMenu.classList.add('opacity-0', 'invisible');
+      mobileMenuContent.classList.remove('translate-x-0');
+      mobileMenuContent.classList.add('translate-x-full');
+      document.body.style.overflow = '';
+
+      // Animation X vers hamburger
+      hamburgerLines[0].style.transform = '';
+      hamburgerLines[1].style.opacity = '';
+      hamburgerLines[2].style.transform = '';
+    }
+  }
+
+  mobileMenuToggle?.addEventListener('click', toggleMobileMenu);
+  mobileMenuClose?.addEventListener('click', toggleMobileMenu);
+  mobileMenu?.addEventListener('click', (e) => {
+    if (e.target === mobileMenu) {
+      toggleMobileMenu();
+    }
+  });
+
+  // Fermer le menu avec Échap
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isMenuOpen) {
+      toggleMobileMenu();
+    }
+  });
+
+  // Fermer le menu lors du clic sur un lien
+  document.querySelectorAll('[data-mobile-nav-link]').forEach(link => {
+    link.addEventListener('click', () => {
+      setTimeout(toggleMobileMenu, 300); // Délai pour l'animation
+    });
+  });
+
+  // Surlignage automatique du lien actif avec IntersectionObserver
+  const navLinks = document.querySelectorAll('[data-nav-link], [data-mobile-nav-link]');
+  const sections = document.querySelectorAll('section[id]');
+
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(link => {
+          link.classList.remove('text-blue-400');
+          link.classList.add('text-gray-300');
+          if (link.getAttribute('href') === `#${id}`) {
+            link.classList.remove('text-gray-300');
+            link.classList.add('text-blue-400');
+          }
+        });
+      }
+    });
+  }, {
+    threshold: 0.5,
+    rootMargin: '-50% 0px -50% 0px'
+  });
+
+  sections.forEach(section => {
+    navObserver.observe(section);
+  });
+
+  // Header qui rétrécit au scroll
+  let lastScrollY = window.scrollY;
+
+  window.addEventListener('scroll', () => {
+    const header = document.getElementById('header');
+    if (window.scrollY > 50) {
+      header?.classList.add('bg-gray-900/80', 'backdrop-blur-xl', 'border-white/20');
+      header?.classList.remove('bg-transparent');
+    } else {
+      header?.classList.remove('bg-gray-900/80', 'backdrop-blur-xl', 'border-white/20');
+      header?.classList.add('bg-transparent');
+    }
+    lastScrollY = window.scrollY;
+  });
+</script>
+
+<style>
+  /* Styles supplémentaires pour le header */
+  #header {
+    transition: all 0.3s ease;
+  }
+
+  #header.shrunk {
+    height: 60px;
+  }
+
+  #header.shrunk .logo-text {
+    font-size: 1.125rem;
+  }
+</style>
