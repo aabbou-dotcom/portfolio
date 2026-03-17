@@ -100,7 +100,7 @@ vercel --yes --prod
 
 ### URL personnalisée
 
-Le portfolio est configuré pour utiliser une URL personnalisée : `https://portfolio-ahmed-abbou.vercel.app`
+Le portfolio est accessible à l'adresse : `https://portfolio-ahmed-abbou.vercel.app`
 
 ## 🎨 Fonctionnalités
 
